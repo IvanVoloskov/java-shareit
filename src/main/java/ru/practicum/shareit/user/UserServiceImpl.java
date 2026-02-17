@@ -63,7 +63,7 @@ class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Пользователь с id " + id + " не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
         return UserMapper.toUserDto(user);
     }
 
@@ -77,7 +77,7 @@ class UserServiceImpl implements UserService {
     @Override
     public void deleteUserById(long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("Пользователь с id " + id + " не найден");
+            throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
         userRepository.deleteById(id);
     }
