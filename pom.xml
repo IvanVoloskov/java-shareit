@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.yandex.practicum</groupId>
-    <artifactId>shareit</artifactId>  <!-- ИСПРАВЛЕНО -->
+    <artifactId>shareit</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <parent>
@@ -36,5 +36,11 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
-    
+
+    <profiles>
+        <profile>
+            <id>check</id>
+        </profile>
+    </profiles>
+
 </project>
