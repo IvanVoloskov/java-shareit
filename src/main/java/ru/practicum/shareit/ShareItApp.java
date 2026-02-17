@@ -5,8 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"ru.practicum.shareit.user", "ru.practicum.shareit.item",
-        "ru.practicum.shareit.booking", "ru.practicum.shareit.exception"})
 public class ShareItApp {
 
 	public static void main(String[] args) {
