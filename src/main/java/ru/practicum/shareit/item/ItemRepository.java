@@ -1,11 +1,8 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface ItemRepository {
     Item save(Item item); // Добавить/обновить вещь
     List<Item> findAll();

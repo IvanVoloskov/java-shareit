@@ -1,8 +1,5 @@
 package ru.practicum.shareit.item;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
 public class ItemMapper {
     public static ItemDto toItemDto (Item item) {
         ItemDto itemDto = new ItemDto();
