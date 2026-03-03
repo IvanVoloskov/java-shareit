@@ -19,7 +19,7 @@ class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         validateUserDto(userDto);
 
-        if (findByEmail(userDto.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
             throw new ConflictException("Пользователь с email " + userDto.getEmail() + " уже существует");
         }
 
@@ -39,7 +39,7 @@ class UserServiceImpl implements UserService {
                 throw new ValidationException("Некорректный формат email");
             }
 
-            findByEmail(userDto.getEmail()).ifPresent(userWithEmail -> {
+            userRepository.findByEmail(userDto.getEmail()).ifPresent(userWithEmail -> {
                 if (!userWithEmail.getId().equals(id)) {
                     throw new ConflictException("Email " + userDto.getEmail() + " уже используется другим пользователем");
                 }

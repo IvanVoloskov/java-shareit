@@ -8,4 +8,5 @@ public interface ItemService {
     ItemDto getItemById(Long itemId);
     List<ItemDto> userItems(long userId);
     List<ItemDto> getItemsByDescription(String text);
+    CommentDto addComment(long userId, long itemId, CommentCreateDto commentDto);
 }

@@ -38,4 +38,11 @@ public class ItemController {
     public List<ItemDto> getItemsByDescription(@RequestParam String text) {
         return itemService.getItemsByDescription(text);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                 @PathVariable Long itemId,
+                                 @RequestBody CommentCreateDto commentDto) {
+        return itemService.addComment(userId, itemId, commentDto);
+    }
 }

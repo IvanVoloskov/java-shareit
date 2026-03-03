@@ -1,15 +1,24 @@
 package ru.practicum.shareit.user;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Setter
+@Getter
+@Entity
+@Table(name = "users")
 public class User {
-    Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     @Email(message = "Некорректный формат email")
     @NotBlank(message = "Email не должен быть пустым")
-    String email;
+    @Column(name = "email", nullable = false, length = 255)
+    private String email;
     @NotBlank(message = "Имя не должно быть пустым")
-    String name;
+    @Column(name = "name", nullable = false, length = 64)
+    private String name;
 }
