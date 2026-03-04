@@ -1,3 +1,15 @@
+#!/bin/bash
+set -x  # Это включит отладку
+
+echo "=== CURRENT DIRECTORY ==="
+pwd
+ls -la
+
+echo "=== DOCKER INFO ==="
+docker --version
+docker compose version
+
+echo "=== STARTING BUILD.SH ==="
 cp -rf ./tests/checkstyle.xml ./checkstyle.xml
 cp -rf ./tests/suppressions.xml ./suppressions.xml
 cp -rf ./tests/Dockerfile ./Dockerfile
