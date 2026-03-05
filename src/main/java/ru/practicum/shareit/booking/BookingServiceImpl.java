@@ -118,7 +118,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Пользователь не найден");
         }
 
-        List<Booking> bookings = bookingRepository. findAllByItemOwnerId(ownerId);
+        List<Booking> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
 
         return filterBookingsByState(bookings, state).stream()
                 .map(BookingMapper::mapToDto)
@@ -151,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
                         .filter(b -> b.getStatus() == Status.REJECTED)
                         .collect(Collectors.toList());
             default:
-                throw  new ValidationException("Параметр state: " + state + " неизвестный");
+                throw new ValidationException("Параметр state: " + state + " неизвестный");
         }
     }
 }
