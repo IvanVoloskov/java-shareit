@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
-import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
@@ -35,10 +35,6 @@ public class BookingServiceImpl implements BookingService {
 
         if (!item.isAvailable()) {
             throw new ValidationException("Вещь уже забронирована");
-        }
-
-        if (bookingCreateDTO.getStart() == null || bookingCreateDTO.getEnd() == null) {
-            throw new ValidationException("Даты бронирования должны быть указаны");
         }
 
         if (bookingCreateDTO.getStart().isAfter(bookingCreateDTO.getEnd())) {
@@ -85,6 +81,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDTO getBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Бронирование не найдено"));
@@ -100,6 +97,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDTO> getUserBookings(Long userId, String state) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь не найден");
@@ -113,6 +111,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDTO> getOwnerBookings(Long ownerId, String state) {
         if (!userRepository.existsById(ownerId)) {
             throw new NotFoundException("Пользователь не найден");

@@ -14,11 +14,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Email(message = "Некорректный формат email")
-    @NotBlank(message = "Email не должен быть пустым")
     @Column(name = "email", nullable = false, length = 255)
     private String email;
-    @NotBlank(message = "Имя не должно быть пустым")
     @Column(name = "name", nullable = false, length = 64)
     private String name;
 }
