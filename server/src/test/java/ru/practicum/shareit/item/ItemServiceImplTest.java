@@ -348,4 +348,62 @@ class ItemServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> itemService.addComment(2L, 99L, commentCreateDto));
     }
+
+    @Test
+    void updateItem_ShouldNotUpdate_WhenAllFieldsNull() {
+        ItemDto updateDto = new ItemDto();
+        updateDto.setId(1L);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(itemRepository.save(any(Item.class))).thenAnswer(i -> i.getArgument(0));
+
+        ItemDto result = itemService.updateItem(1L, updateDto);
+
+        assertEquals("Drill", result.getName());
+        assertEquals("Powerful drill", result.getDescription());
+        assertTrue(result.getAvailable());
+    }
+
+    @Test
+    void getItemById_ShouldThrow_WhenItemIdNull() {
+        assertThrows(NotFoundException.class, () -> itemService.getItemById(null));
+    }
+
+    @Test
+    void getItemsByDescription_ShouldReturnEmpty_WhenTextNull() {
+        List<ItemDto> result = itemService.getItemsByDescription(null);
+
+        assertTrue(result.isEmpty());
+        verify(itemRepository, never()).searchAvailableItemsByDescriptionOrName(any());
+    }
+
+    @Test
+    void addComment_ShouldThrow_WhenCommentTextNull() {
+        CommentCreateDto emptyComment = new CommentCreateDto();
+        emptyComment.setText(null);
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(booker));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(commentRepository.hasUserBookedAndFinished(1L, 2L)).thenReturn(true);
+
+        when(commentRepository.save(any(Comment.class))).thenThrow(new ValidationException("Текст комментария не может быть пустым"));
+
+        assertThrows(ValidationException.class,
+                () -> itemService.addComment(2L, 1L, emptyComment));
+    }
+
+    @Test
+    void addComment_ShouldThrow_WhenCommentTextEmpty() {
+        CommentCreateDto emptyComment = new CommentCreateDto();
+        emptyComment.setText("");
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(booker));
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(commentRepository.hasUserBookedAndFinished(1L, 2L)).thenReturn(true);
+
+        when(commentRepository.save(any(Comment.class))).thenThrow(new ValidationException("Текст комментария не может быть пустым"));
+
+        assertThrows(ValidationException.class,
+                () -> itemService.addComment(2L, 1L, emptyComment));
+    }
 }

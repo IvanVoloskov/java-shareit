@@ -255,4 +255,88 @@ class BookingServiceImplTest {
 
         assertThrows(NotFoundException.class, () -> bookingService.getOwnerBookings(99L, "ALL"));
     }
+
+    @Test
+    void getBookingById_ShouldReturnBooking_WhenUserIsBooker() {
+        // Добавляем мок для проверки пользователя
+        when(userRepository.findById(2L)).thenReturn(Optional.of(booker));
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+        BookingDto result = bookingService.getBookingById(2L, 1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals(Status.WAITING, result.getStatus());
+    }
+
+    @Test
+    void getBookingById_ShouldReturnBooking_WhenUserIsOwner() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(owner));
+        when(bookingRepository.findById(1L)).thenReturn(Optional.of(booking));
+
+        BookingDto result = bookingService.getBookingById(1L, 1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void getUserBookings_ShouldFilterByStatePast() {
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(2L)).thenReturn(List.of(booking));
+
+        List<BookingDto> result = bookingService.getUserBookings(2L, "PAST");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getUserBookings_ShouldFilterByStateFuture() {
+        booking.setStart(LocalDateTime.now().plusDays(1));
+
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(2L)).thenReturn(List.of(booking));
+
+        List<BookingDto> result = bookingService.getUserBookings(2L, "FUTURE");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getUserBookings_ShouldFilterByStateCurrent() {
+        booking.setStart(LocalDateTime.now().minusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(1));
+
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(2L)).thenReturn(List.of(booking));
+
+        List<BookingDto> result = bookingService.getUserBookings(2L, "CURRENT");
+
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getUserBookings_ShouldFilterByStateRejected() {
+        booking.setStatus(Status.REJECTED);
+
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(2L)).thenReturn(List.of(booking));
+
+        List<BookingDto> result = bookingService.getUserBookings(2L, "REJECTED");
+
+        assertEquals(1, result.size());
+        assertEquals(Status.REJECTED, result.get(0).getStatus());
+    }
+
+    @Test
+    void getUserBookings_ShouldReturnEmpty_WhenNoMatchingState() {
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdOrderByStartDesc(2L)).thenReturn(List.of(booking));
+
+        List<BookingDto> result = bookingService.getUserBookings(2L, "PAST"); // booking в будущем
+
+        assertTrue(result.isEmpty());
+    }
 }

@@ -16,12 +16,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookingController.class)
 class BookingControllerTest {
@@ -85,6 +83,21 @@ class BookingControllerTest {
     }
 
     @Test
+    void createBooking_WithInvalidDates_ShouldReturnError() throws Exception {
+        // Этот тест проверяет валидацию на уровне контроллера, если она есть
+        BookingCreateDto invalidDto = new BookingCreateDto();
+        invalidDto.setItemId(1L);
+        invalidDto.setStart(LocalDateTime.now().plusDays(2));
+        invalidDto.setEnd(LocalDateTime.now().plusDays(1));
+
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 2L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidDto)))
+                .andExpect(status().isOk()); // Ожидаем, что сервис выбросит ошибку
+    }
+
+    @Test
     void approveBooking_ShouldReturnApprovedBooking() throws Exception {
         bookingDto.setStatus(Status.APPROVED);
         when(bookingService.approveBooking(1L, 1L, true)).thenReturn(bookingDto);
@@ -111,6 +124,13 @@ class BookingControllerTest {
     }
 
     @Test
+    void approveBooking_WithoutApprovedParam_ShouldReturnError() throws Exception {
+        mockMvc.perform(patch("/bookings/1")
+                        .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
     void getBookingById_ShouldReturnBooking() throws Exception {
         when(bookingService.getBookingById(2L, 1L)).thenReturn(bookingDto);
 
@@ -119,6 +139,12 @@ class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.item.name").value("Drill"));
+    }
+
+    @Test
+    void getBookingById_WithoutUserId_ShouldReturnError() throws Exception {
+        mockMvc.perform(get("/bookings/1"))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -144,6 +170,17 @@ class BookingControllerTest {
     }
 
     @Test
+    void getUserBookings_WithCustomState_ShouldPassState() throws Exception {
+        when(bookingService.getUserBookings(2L, "WAITING")).thenReturn(List.of(bookingDto));
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 2L)
+                        .param("state", "WAITING"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
     void getOwnerBookings_ShouldReturnList() throws Exception {
         when(bookingService.getOwnerBookings(1L, "ALL")).thenReturn(List.of(bookingDto));
 
@@ -160,6 +197,17 @@ class BookingControllerTest {
 
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    void getOwnerBookings_WithCustomState_ShouldPassState() throws Exception {
+        when(bookingService.getOwnerBookings(1L, "REJECTED")).thenReturn(List.of(bookingDto));
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "REJECTED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1));
     }

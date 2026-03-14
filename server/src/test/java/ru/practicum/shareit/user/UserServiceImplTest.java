@@ -142,4 +142,46 @@ class UserServiceImplTest {
 
         verify(userRepository, never()).deleteById(anyLong());
     }
+
+    @Test
+    void updateUser_ShouldThrow_WhenEmailAlreadyUsedByAnotherUser() {
+        UserDto updateDto = new UserDto();
+        updateDto.setEmail("existing@mail.com");
+
+        User anotherUser = new User();
+        anotherUser.setId(2L);
+        anotherUser.setEmail("existing@mail.com");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail("existing@mail.com")).thenReturn(Optional.of(anotherUser));
+
+        assertThrows(ConflictException.class, () -> userService.updateUser(1L, updateDto));
+    }
+
+    @Test
+    void updateUser_ShouldUpdateEmail_WhenEmailIsSameAsCurrent() {
+        UserDto updateDto = new UserDto();
+        updateDto.setEmail("john@mail.com"); // тот же email
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        UserDto result = userService.updateUser(1L, updateDto);
+
+        assertEquals("john@mail.com", result.getEmail());
+    }
+
+    @Test
+    void updateUser_ShouldNotUpdate_WhenAllFieldsNull() {
+        UserDto updateDto = new UserDto(); // все поля null
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        UserDto result = userService.updateUser(1L, updateDto);
+
+        assertEquals("John", result.getName());
+        assertEquals("john@mail.com", result.getEmail());
+    }
 }
