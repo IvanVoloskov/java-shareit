@@ -433,4 +433,28 @@ class ItemServiceImplTest {
         verify(userRepository, never()).findById(any());
         verify(itemRepository, never()).save(any());
     }
+
+    @Test
+    void getItemById_WithRequest_ShouldSetRequestId() {
+        ItemRequest request = new ItemRequest();
+        request.setId(5L);
+        item.setRequest(request);
+
+        when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(commentRepository.findAllByItemIdOrderByCreatedDesc(1L)).thenReturn(List.of());
+
+        ItemDto result = itemService.getItemById(1L);
+
+        assertEquals(5L, result.getRequestId());
+    }
+
+    @Test
+    void userItems_ShouldReturnEmpty_WhenUserHasNoItems() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(itemRepository.findAllByOwnerId(1L)).thenReturn(List.of());
+
+        List<ItemDto> result = itemService.userItems(1L);
+
+        assertTrue(result.isEmpty());
+    }
 }

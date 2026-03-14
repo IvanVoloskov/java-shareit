@@ -61,4 +61,15 @@ class CommentMapperTest {
         assertNull(comment.getText());
         assertNotNull(comment.getCreated());
     }
+
+    @Test
+    void mapToCreateComment_ShouldSetCreated() {
+        CommentCreateDto createDto = new CommentCreateDto();
+        createDto.setText("Text");
+
+        Comment comment = CommentMapper.mapToCreateComment(createDto);
+
+        assertEquals("Text", comment.getText());
+        assertNotNull(comment.getCreated());
+    }
 }

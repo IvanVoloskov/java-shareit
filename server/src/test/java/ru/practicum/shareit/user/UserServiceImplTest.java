@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -183,5 +184,35 @@ class UserServiceImplTest {
 
         assertEquals("John", result.getName());
         assertEquals("john@mail.com", result.getEmail());
+    }
+
+    @Test
+    void updateUser_ShouldThrow_WhenEmailIsInvalid() {
+        UserDto updateDto = new UserDto();
+        updateDto.setEmail("invalid-email");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, updateDto));
+    }
+
+    @Test
+    void updateUser_ShouldThrow_WhenEmailIsBlank() {
+        UserDto updateDto = new UserDto();
+        updateDto.setEmail("");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, updateDto));
+    }
+
+    @Test
+    void updateUser_ShouldThrow_WhenNameIsBlank() {
+        UserDto updateDto = new UserDto();
+        updateDto.setName("");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, updateDto));
     }
 }
