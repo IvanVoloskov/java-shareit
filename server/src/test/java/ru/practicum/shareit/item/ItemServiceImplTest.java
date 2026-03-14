@@ -406,4 +406,31 @@ class ItemServiceImplTest {
         assertThrows(ValidationException.class,
                 () -> itemService.addComment(2L, 1L, emptyComment));
     }
+
+    @Test
+    void addItem_ShouldThrow_WhenNameIsNull() {
+        itemCreateDto.setDescription(null);
+
+        assertThrows(ValidationException.class, () -> itemService.addItem(1L, itemCreateDto));
+        verify(userRepository, never()).findById(any());
+        verify(itemRepository, never()).save(any());
+    }
+
+    @Test
+    void addItem_ShouldThrow_WhenDescriptionIsNull() {
+        itemCreateDto.setAvailable(null);
+
+        assertThrows(ValidationException.class, () -> itemService.addItem(1L, itemCreateDto));
+        verify(userRepository, never()).findById(any());
+        verify(itemRepository, never()).save(any());
+    }
+
+    @Test
+    void addItem_ShouldThrow_WhenAvailableIsNull() {
+        itemCreateDto.setName(null);
+
+        assertThrows(ValidationException.class, () -> itemService.addItem(1L, itemCreateDto));
+        verify(userRepository, never()).findById(any());
+        verify(itemRepository, never()).save(any());
+    }
 }
