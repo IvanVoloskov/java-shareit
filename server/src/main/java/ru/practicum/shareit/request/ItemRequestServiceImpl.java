@@ -3,6 +3,7 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.Item;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional
 public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
@@ -38,6 +40,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemRequestDto> getUserRequest(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw  new NotFoundException("Пользователь с ID " + userId + " не найден!");
@@ -67,6 +70,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemRequestDto> getAllRequests(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с ID " + userId + " не найден!");
@@ -104,6 +108,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemRequestDto getRequestById(Long userId, Long requestId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с ID " + userId + " не найден!");
